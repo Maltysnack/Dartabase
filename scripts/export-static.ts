@@ -90,13 +90,13 @@ async function main() {
   mkdirSync(OUT, { recursive: true });
 
   const institutions = await rows<DbInstitution>(
-    "select id,name,city,country,website,merged_into from institutions",
+    "select id,name,city,country,website,merged_into from institutions order by id",
   );
   const artists = await rows<DbArtist>(
-    "select id,name,sort_name,also_known_as,birth_year,death_year,nationality,image_url,wikidata_id,merged_into from artists",
+    "select id,name,sort_name,also_known_as,birth_year,death_year,nationality,image_url,wikidata_id,merged_into from artists order by id",
   );
   const allWorks = await rows<DbArtwork>(
-    "select id,title,artist_id,date_text,date_year,medium,dimensions,current_institution_id,credit_line,image_url,image_license,source,source_id,source_url,cultural_notice,cultural_attribution,classification from artworks where title is not null and title <> ''",
+    "select id,title,artist_id,date_text,date_year,medium,dimensions,current_institution_id,credit_line,image_url,image_license,source,source_id,source_url,cultural_notice,cultural_attribution,classification from artworks where title is not null and title <> '' order by id",
   );
 
   // Follow merge chains so every reference lands on a surviving record.
