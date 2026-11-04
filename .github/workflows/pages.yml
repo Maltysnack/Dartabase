@@ -1,0 +1,68 @@
+# Publishes the static site to GitHub Pages. In the repository settings, set
+# Pages > Source to "GitHub Actions". The site is plain files (out/); there is
+# no server, no database and no secrets.
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Work out the base path
+        # A custom domain (set the repository variable CUSTOM_DOMAIN to any
+        # value, e.g. dartabase.art) or a user site serves from the root. A
+        # project page serves from /<repository>.
+        env:
+          CUSTOM_DOMAIN: ${{ vars.CUSTOM_DOMAIN }}
+        run: |
+          repo="${GITHUB_REPOSITORY#*/}"
+          if [ -n "$CUSTOM_DOMAIN" ]; then
+            echo "NEXT_PUBLIC_BASE_PATH=" >> "$GITHUB_ENV"
+          else
+            case "$repo" in
+              *.github.io) echo "NEXT_PUBLIC_BASE_PATH=" >> "$GITHUB_ENV" ;;
+              *) echo "NEXT_PUBLIC_BASE_PATH=/$repo" >> "$GITHUB_ENV" ;;
+            esac
+          fi
+          echo "NEXT_PUBLIC_REPO=$GITHUB_REPOSITORY" >> "$GITHUB_ENV"
+      - run: pnpm build
+      - name: Check the site fits GitHub Pages (1 GB limit)
+        run: |
+          size=$(du -sm out | cut -f1)
+          echo "site is ${size} MB"
+          test "$size" -lt 900
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: out
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
