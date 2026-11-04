@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import {
   artworkHref,
@@ -13,15 +13,70 @@ import {
 import { SearchBox } from "./search-box";
 
 const TILES = 24;
+const GAP = 16;
+const CAPTION_H = 52;
+// Extreme proportions are eased so one very long panorama or sliver cannot
+// take over a row.
+const MIN_RATIO = 0.55;
+const MAX_RATIO = 2.4;
+
+interface Placed {
+  tile: GalleryTile;
+  w: number;
+  h: number;
+}
+
+// Justified rows: tiles are packed left to right and each row is scaled so it
+// exactly fills the width. Every picture keeps its proportions, and the tiles in
+// a row share a top and a bottom edge.
+function layout(tiles: GalleryTile[], width: number, target: number): Placed[][] {
+  const ratio = (t: GalleryTile) => Math.min(MAX_RATIO, Math.max(MIN_RATIO, t.w / t.h));
+  const rows: Placed[][] = [];
+  let row: GalleryTile[] = [];
+  let sum = 0;
+  const flush = (last: boolean) => {
+    if (row.length === 0) return;
+    const free = width - GAP * (row.length - 1);
+    const fit = free / sum;
+    const h = last ? Math.min(fit, target) : fit;
+    rows.push(row.map((tile) => ({ tile, w: ratio(tile) * h, h })));
+    row = [];
+    sum = 0;
+  };
+  for (const tile of tiles) {
+    row.push(tile);
+    sum += ratio(tile);
+    if ((width - GAP * (row.length - 1)) / sum <= target) flush(false);
+  }
+  flush(true);
+  return rows;
+}
 
 export function HomeView() {
   const [tiles, setTiles] = useState<GalleryTile[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
+  const [width, setWidth] = useState(0);
+  const wall = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     getGalleryTiles(TILES).then(setTiles);
     getStats().then(setStats);
   }, []);
+
+  useLayoutEffect(() => {
+    const el = wall.current;
+    if (!el) return;
+    const measure = () => setWidth(el.clientWidth);
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  const rows = useMemo(
+    () => (width > 0 ? layout(tiles, width, width < 640 ? 230 : width < 1024 ? 240 : 280) : []),
+    [tiles, width],
+  );
 
   return (
     <div className="mx-auto max-w-[1500px] px-6 py-16 md:px-10">
@@ -46,30 +101,36 @@ export function HomeView() {
       </div>
 
       <h2 className="mt-20 font-display text-lg text-ink">In the collection</h2>
-      <ul className="mt-6 grid grid-cols-2 gap-5 md:grid-cols-3 lg:grid-cols-4">
-        {tiles.map((t) => (
-          <li key={t.id}>
-            <Link href={artworkHref(t.id)} className="group block border border-line bg-raised">
-              <div className="relative aspect-[4/5] overflow-hidden bg-raised">
-                <img
-                  src={`${BASE}/gallery/${t.file}`}
-                  alt={t.title}
-                  className="absolute inset-0 h-full w-full object-contain"
-                />
-              </div>
-              <div className="px-3 py-3">
-                <p className="font-display italic text-ink group-hover:underline">{t.title}</p>
-                <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.1em] text-muted">
-                  {[t.artist, t.date].filter(Boolean).join(" · ")}
-                </p>
-                <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.1em] text-muted">
-                  {t.institution}
-                </p>
-              </div>
-            </Link>
-          </li>
+      <div ref={wall} className="mt-6">
+        {rows.map((row, i) => (
+          <div key={i} className="flex" style={{ gap: GAP, marginBottom: GAP }}>
+            {row.map(({ tile, w, h }) => (
+              <Link
+                key={tile.id}
+                href={artworkHref(tile.id)}
+                className="group block shrink-0"
+                style={{ width: w }}
+              >
+                <div className="overflow-hidden bg-raised" style={{ width: w, height: h }}>
+                  <img
+                    src={`${BASE}/gallery/${tile.file}`}
+                    alt={tile.title}
+                    className="h-full w-full object-contain"
+                  />
+                </div>
+                <div className="overflow-hidden pt-2" style={{ height: CAPTION_H }}>
+                  <p className="line-clamp-1 font-display text-sm italic text-ink group-hover:underline">
+                    {tile.title}
+                  </p>
+                  <p className="mt-0.5 line-clamp-1 font-mono text-[10px] uppercase tracking-[0.1em] text-muted">
+                    {[tile.artist, tile.date].filter(Boolean).join(" · ")}
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }

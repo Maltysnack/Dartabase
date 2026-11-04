@@ -30,110 +30,74 @@ export function GalleriesView() {
   const repo = `https://github.com/${REPO}`;
 
   return (
-    <div className="mx-auto max-w-4xl px-6 py-12 md:px-10">
-      <p className={label}>Galleries and sources</p>
-      <h1 className="mt-2 font-display text-3xl text-ink">What Dartabase covers</h1>
-      <div className="mt-6 max-w-2xl space-y-4 font-display text-[15px] leading-relaxed text-ink">
-        <p>
-          Dartabase indexes a sample of open museum collections: records the institutions, or Wikidata
-          on their behalf, have published for reuse. It is not complete, and it is not a substitute
-          for any museum. Every record links back to its source.
-        </p>
-        <p>
-          Images are not stored here, with the exception of a small set of public-domain pictures on
-          the home page. Where an institution has openly licensed an image, your browser loads it
-          directly from the museum or Wikimedia Commons, which means those hosts can see your IP
-          address. Works without an openly licensed image show metadata only.
-        </p>
-        <p>
-          First Nations material is flagged, and a standing advisory appears on every page. To request
-          removal or restriction of a record, use the link on the record, or{" "}
-          <a href={`${repo}/issues`} className={link} target="_blank" rel="noopener noreferrer">
-            open an issue
-          </a>
-          .
-        </p>
-      </div>
+    <div className="lg:flex lg:h-[calc(100dvh-4.5rem)] lg:overflow-hidden">
+      <aside className="px-6 py-10 md:px-10 lg:w-[26rem] lg:shrink-0 lg:overflow-y-auto lg:border-r lg:border-line xl:w-[30rem]">
+        <p className={label}>Galleries and sources</p>
+        <h1 className="mt-2 font-display text-3xl text-ink">What Dartabase covers</h1>
+        <div className="mt-6 space-y-4 font-display text-[15px] leading-relaxed text-ink">
+          <p>
+            A sample of open museum collections, gathered from what each museum, or Wikidata on its
+            behalf, has published for reuse. It is not complete, and every record links back to its
+            source.
+          </p>
+          <p>
+            Images load straight from the museum or Wikimedia Commons, so they appear only where the
+            museum has openly licensed them. Everything else is catalogue information.
+          </p>
+          <p>
+            First Nations material is flagged, and a notice appears on every page. To ask for a
+            record to be restricted or removed, use the link on the record.
+          </p>
+          <p className="border-t border-line pt-4 text-muted">
+            Dartabase is open source.{" "}
+            <a href={repo} className={link} target="_blank" rel="noopener noreferrer">
+              Add galleries or fix records on GitHub
+            </a>
+            .
+          </p>
+        </div>
+      </aside>
 
-      <h2 className="mt-14 font-display text-2xl text-ink">Open source and contributing</h2>
-      <div className="mt-4 max-w-2xl space-y-4 font-display text-[15px] leading-relaxed text-ink">
-        <p>
-          Dartabase is open source under the MIT licence. The{" "}
-          <a href={repo} className={link} target="_blank" rel="noopener noreferrer">
-            code and data
-          </a>{" "}
-          are on GitHub, and the museum records keep the terms their sources set, listed in{" "}
-          <a href={`${repo}/blob/main/DATA-SOURCES.md`} className={link} target="_blank" rel="noopener noreferrer">
-            DATA-SOURCES
-          </a>
-          .
+      <section className="px-6 pb-12 md:px-10 lg:flex-1 lg:overflow-y-auto lg:py-10">
+        <p className="max-w-2xl font-display text-sm leading-relaxed text-muted">
+          A count is shown where Dartabase holds a thousand works or more. The others are smaller
+          samples.
         </p>
-        <p>
-          This site is a sample, and anyone can grow it. Each gallery has a script that pulls more
-          records from the museum&apos;s own open data. Clone the repository, run the script for the
-          gallery you care about, and rebuild. The{" "}
-          <a
-            href={`${repo}/blob/main/docs/ADDING-GALLERIES.md`}
-            className={link}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            guide to adding galleries
-          </a>{" "}
-          explains each step, how much room there is, and which galleries are still missing.
-        </p>
-        <p>
-          Contributions are welcome: a new gallery adapter, a correction, a better way to handle
-          First Nations material, or a fix to the site. Open an{" "}
-          <a href={`${repo}/issues`} className={link} target="_blank" rel="noopener noreferrer">
-            issue
-          </a>{" "}
-          or a pull request.
-        </p>
-      </div>
-
-      <h2 className="mt-14 font-display text-2xl text-ink">Galleries</h2>
-      <p className="mt-3 max-w-2xl font-display text-[15px] leading-relaxed text-muted">
-        A count is shown where Dartabase holds at least a thousand works. The others are smaller
-        samples that can be expanded with the guide above.
-      </p>
-
-      {countries.map(([country, list]) => (
-        <section key={country} className="mt-10">
-          <h3 className="font-display text-xl text-ink">{country}</h3>
-          {country === "Australia" && (
-            <p className="mt-2 max-w-2xl font-display text-sm leading-relaxed text-muted">
-              NGV, the National Gallery of Australia, the Art Gallery of NSW and the Art Gallery of South
-              Australia publish no open collection feed, so their records come from Wikidata as metadata
-              only. Several other Australian galleries, including the MCA, cannot be added yet; the guide
-              explains why.
-            </p>
-          )}
-          <ul className="mt-3 divide-y divide-line border-y border-line">
-            {list.map((g) => (
-              <li
-                key={g.name}
-                className="flex flex-col gap-1 py-3 md:flex-row md:items-baseline md:justify-between md:gap-6"
-              >
-                <span className="font-display text-ink">
-                  {g.website ? (
-                    <a href={g.website} target="_blank" rel="noopener noreferrer" className="ext hover:text-muted">
-                      {g.name}
-                    </a>
-                  ) : (
-                    g.name
-                  )}
-                </span>
-                <span className={label}>
-                  {[g.city, g.works >= COUNT_FROM ? `${g.works.toLocaleString("en-AU")} works` : null]
-                    .filter(Boolean)
-                    .join(" · ")}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </section>
-      ))}
+        {countries.map(([country, list]) => (
+          <div key={country} className="mt-8">
+            <h2 className="font-display text-xl text-ink">{country}</h2>
+            {country === "Australia" && (
+              <p className="mt-1 max-w-2xl font-display text-sm leading-relaxed text-muted">
+                These galleries publish no open collection feed, so most records are catalogue
+                information only. The MCA and a few others cannot be added yet.
+              </p>
+            )}
+            <ul className="mt-3 divide-y divide-line border-y border-line">
+              {list.map((g) => (
+                <li
+                  key={g.name}
+                  className="flex flex-col gap-1 py-3 md:flex-row md:items-baseline md:justify-between md:gap-6"
+                >
+                  <span className="font-display text-ink">
+                    {g.website ? (
+                      <a href={g.website} target="_blank" rel="noopener noreferrer" className="ext hover:text-muted">
+                        {g.name}
+                      </a>
+                    ) : (
+                      g.name
+                    )}
+                  </span>
+                  <span className={label}>
+                    {[g.city, g.works >= COUNT_FROM ? `${g.works.toLocaleString("en-AU")} works` : null]
+                      .filter(Boolean)
+                      .join(" · ")}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </section>
     </div>
   );
 }
