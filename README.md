@@ -88,23 +88,6 @@ exploring a combinatorial space of faceted URLs and exhausting 5 GB of egress, a
 invisible in code review and obvious in metrics. Static files remove the whole
 class: bots can only download files from a CDN.
 
-## How it got here
-
-Dartabase was built over about five months, from May 2026, in roughly 800 commits in a
-private repository. This repository is the finished result with a short history that
-reads from schema to site, because the original history is mostly the dead ends below.
-The original is kept privately and can be shared on request.
-
-- **May to June:** ingestion adapters for the first dozen museums, a Postgres schema,
-  citations, and a server-rendered site on Vercel and Supabase.
-- **June:** the free tiers were exhausted for the first time. Fixes: query caching,
-  statically rendered record pages and blocking crawler cost sinks.
-- **July to August:** plan timeouts, branch-preview sprawl and sitemap load, found from
-  metrics and fixed one at a time.
-- **October:** stripped to search, records and citations, then taken off Vercel.
-- **November:** rebuilt as a static site. The database became a local workbench, and the
-  published site became plain files on GitHub Pages.
-
 ## Run it
 
 Requirements: Node 20+ and pnpm.
