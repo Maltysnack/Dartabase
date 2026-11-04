@@ -93,7 +93,10 @@
     "ingest:agnsw": "tsx scripts/ingest-wikidata-art.ts --museum agnsw --metadata-only --require-artist",
     "ingest:nga-au": "tsx scripts/ingest-wikidata-art.ts --museum nga-au --metadata-only --require-artist",
     "ingest:agsa": "tsx scripts/ingest-wikidata-art.ts --museum agsa --metadata-only --require-artist",
-    "ingest:agwa": "tsx scripts/ingest-wikidata-art.ts --museum agwa --metadata-only --require-artist"
+    "ingest:agwa": "tsx scripts/ingest-wikidata-art.ts --museum agwa --metadata-only --require-artist",
+    "gallery:fetch": "tsx scripts/fetch-gallery-images.ts",
+    "db:dump-ndjson": "sh scripts/dump-ndjson.sh",
+    "db:restore": "sh scripts/restore-dump.sh"
   },
   "dependencies": {
     "next": "16.2.6",
