@@ -1,0 +1,152 @@
+@import "tailwindcss";
+
+@theme {
+  --color-paper: #f1eee4;
+  --color-raised: #faf8f1;
+  --color-ink: #1b1913;
+  --color-muted: #6e6957;
+  --color-line: #d5cfbc;
+
+  --font-display: var(--font-spectral), Georgia, "Times New Roman", serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, monospace;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    /* Paper, so the safe-area strips and any overscroll never flash white. */
+    background-color: var(--color-paper);
+  }
+
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-display);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background-color: var(--color-ink);
+    color: var(--color-paper);
+  }
+
+  :focus-visible {
+    outline: 1.5px solid var(--color-ink);
+    outline-offset: 2px;
+  }
+}
+
+/* Height of the fixed SiteHeader, used to offset sticky elements and any
+   #anchor scrolling so targets clear the header. Measured per breakpoint.
+   Includes env(safe-area-inset-top) since the header now pads its content
+   below the notch on notched phones (see site-header.tsx); resolves to the
+   plain px value on every other device. */
+:root {
+  --header-h: calc(72px + env(safe-area-inset-top));
+}
+@media (min-width: 768px) {
+  :root {
+    --header-h: calc(61px + env(safe-area-inset-top));
+  }
+}
+
+@layer base {
+  html {
+    scroll-padding-top: var(--header-h);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Brief tint when a timeline row is reached via #anchor (movements page). */
+  .timeline-row:target {
+    animation: tl-flash 1.8s ease-out 0.15s;
+  }
+}
+
+@keyframes tl-flash {
+  0%,
+  18% {
+    background-color: var(--color-raised);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+/* faint paper grain, sits above everything but never intercepts input */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.55;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.26'/%3E%3C/svg%3E");
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.rise-in {
+  animation: rise-in 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise-in {
+    animation: none;
+  }
+}
+
+@media print {
+  /* Strip grain overlay */
+  body::after {
+    display: none;
+  }
+
+  /* White page, black ink */
+  html,
+  body {
+    background-color: #fff !important;
+    color: #000 !important;
+  }
+
+  /* Hide all borders and backgrounds on containers so ink isn't wasted */
+  .border-line,
+  .border-ink {
+    border-color: #ccc !important;
+  }
+
+  /* Images: let them fill available width but not bleed off the page */
+  img {
+    max-width: 100% !important;
+    max-height: 60vh !important;
+    object-fit: contain;
+  }
+
+  /* Avoid breaking inside key content blocks */
+  h1,
+  h2,
+  dl,
+  figure {
+    break-inside: avoid;
+  }
+
+  /* Source URL: show href inline so printed copy has the reference */
+  a[href]::after {
+    content: none;
+  }
+}
