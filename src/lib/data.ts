@@ -116,9 +116,10 @@ const known = new Map<string, { work: Work; thumb: string }>();
 export const peekWork = (id: string): Work | undefined => known.get(id)?.work;
 export const peekThumb = (id: string): string | undefined => known.get(id)?.thumb;
 
-// A random selection from the public-domain images stored in /gallery, so the
-// home page shows a fresh set on every visit with no hotlink delay.
-export async function getGalleryTiles(count: number): Promise<GalleryTile[]> {
+// The public-domain images stored in /gallery in random order, so the home page
+// shows a fresh set on every visit with no hotlink delay. The page lays out as
+// many as it needs and only those images are downloaded.
+export async function getGalleryTiles(): Promise<GalleryTile[]> {
   const res = await fetch(`${BASE}/gallery/index.json`).catch(() => null);
   const pool: GalleryTile[] = res?.ok ? await res.json() : [];
   for (const t of pool) known.set(t.id, { work: t.work, thumb: `${BASE}/gallery/${t.file}` });
@@ -126,7 +127,7 @@ export async function getGalleryTiles(count: number): Promise<GalleryTile[]> {
     const j = Math.floor(Math.random() * (i + 1));
     [pool[i], pool[j]] = [pool[j], pool[i]];
   }
-  return pool.slice(0, count);
+  return pool;
 }
 
 // Warm the cache for a record the visitor is about to open.

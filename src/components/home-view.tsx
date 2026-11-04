@@ -12,6 +12,7 @@ import {
 } from "@/lib/data";
 import { SearchBox } from "./search-box";
 
+// The wall shows whole rows only, so it stops at the first row boundary at or past this.
 const TILES = 24;
 const GAP = 16;
 const CAPTION_H = 52;
@@ -59,7 +60,7 @@ export function HomeView() {
   const wall = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    getGalleryTiles(TILES).then(setTiles);
+    getGalleryTiles().then(setTiles);
     getStats().then(setStats);
   }, []);
 
@@ -73,10 +74,19 @@ export function HomeView() {
     return () => ro.disconnect();
   }, []);
 
-  const rows = useMemo(
-    () => (width > 0 ? layout(tiles, width, width < 640 ? 230 : width < 1024 ? 240 : 280) : []),
-    [tiles, width],
-  );
+  const rows = useMemo(() => {
+    if (width <= 0) return [];
+    const all = layout(tiles, width, width < 640 ? 230 : width < 1024 ? 240 : 280);
+    // Keep only complete rows, ending at the first row boundary at or past TILES.
+    const kept: Placed[][] = [];
+    let count = 0;
+    for (const row of all.slice(0, -1)) {
+      kept.push(row);
+      count += row.length;
+      if (count >= TILES) break;
+    }
+    return kept;
+  }, [tiles, width]);
 
   return (
     <div className="mx-auto max-w-[1500px] px-6 py-16 md:px-10">
@@ -116,6 +126,8 @@ export function HomeView() {
                     src={`${BASE}/gallery/${tile.file}`}
                     alt={tile.title}
                     className="h-full w-full object-contain"
+                    loading="lazy"
+                    decoding="async"
                   />
                 </div>
                 <div className="overflow-hidden pt-2" style={{ height: CAPTION_H }}>

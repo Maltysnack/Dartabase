@@ -28,7 +28,7 @@ function storedStyle(): CitationStyle {
 // Cite a work in the major styles. Everything runs in the browser.
 export function CitationPanel({ work }: { work: Work }) {
   const [style, setStyle] = useState<CitationStyle>(storedStyle);
-  const [copied, setCopied] = useState<"" | "citation" | "url">("");
+  const [copied, setCopied] = useState(false);
 
   // The shape the formatters expect.
   const cite = {
@@ -55,11 +55,11 @@ export function CitationPanel({ work }: { work: Work }) {
     URL.revokeObjectURL(href);
   }
 
-  async function copy(text: string, what: "citation" | "url") {
+  async function copy(text: string) {
     try {
       await navigator.clipboard.writeText(text);
-      setCopied(what);
-      setTimeout(() => setCopied(""), 2000);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     } catch {
       // clipboard unavailable; the text is still visible to copy
     }
@@ -97,8 +97,8 @@ export function CitationPanel({ work }: { work: Work }) {
       </p>
 
       <div className="mt-4 flex flex-wrap items-center gap-4">
-        <button type="button" onClick={() => copy(citationToText(parts), "citation")} aria-live="polite" className={btn}>
-          {copied === "citation" ? "Copied" : "Copy citation"}
+        <button type="button" onClick={() => copy(citationToText(parts))} aria-live="polite" className={btn}>
+          {copied ? "Copied" : "Copy citation"}
         </button>
         <button type="button" onClick={() => download(bibtex(cite, url), `${slug}.bib`, "text/plain")} className={btn}>
           .bib
@@ -109,14 +109,6 @@ export function CitationPanel({ work }: { work: Work }) {
           className={btn}
         >
           .ris
-        </button>
-      </div>
-
-      <div className="mt-6 border-t border-line pt-4">
-        <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted">Page URL</p>
-        <p className="mt-2 break-all font-mono text-[11px] text-ink">{url}</p>
-        <button type="button" onClick={() => copy(url, "url")} aria-live="polite" className={`${btn} mt-2`}>
-          {copied === "url" ? "Copied" : "Copy URL"}
         </button>
       </div>
     </div>

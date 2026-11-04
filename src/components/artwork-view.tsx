@@ -29,6 +29,7 @@ export function ArtworkView() {
 
   const pageUrl = `${window.location.origin}${BASE}${artworkHref(work.id)}`;
   const rights = artworkRights(work.licence, !!work.image);
+  const hasImage = !!work.image || !!peekThumb(work.id);
 
   return (
     <div className="mx-auto max-w-[1500px] px-6 py-12 md:px-10">
@@ -54,20 +55,12 @@ export function ArtworkView() {
         </div>
       )}
 
-      <div className="grid gap-12 lg:grid-cols-[1.45fr_1fr]">
-        <div className="relative h-[60vh] min-h-[360px] self-start border border-line bg-raised lg:sticky lg:top-6 lg:h-[78vh]">
-          <WorkImage src={work.image} alt={work.title} placeholder={peekThumb(work.id)} />
-          {!work.image && !peekThumb(work.id) && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 px-8 text-center">
-              <p className={label}>Metadata only</p>
-              <p className="max-w-sm font-display text-sm italic leading-relaxed text-muted">
-                We mirror only what an institution has openly published. This work has no openly
-                licensed image here.
-                {work.sourceUrl ? " Follow the link below to view it at the source." : ""}
-              </p>
-            </div>
-          )}
-        </div>
+      <div className={hasImage ? "grid gap-12 lg:grid-cols-[1.45fr_1fr]" : "max-w-3xl"}>
+        {hasImage && (
+          <div className="relative h-[60vh] min-h-[360px] self-start border border-line bg-raised lg:sticky lg:top-6 lg:h-[78vh]">
+            <WorkImage src={work.image} alt={work.title} placeholder={peekThumb(work.id)} />
+          </div>
+        )}
 
         <div>
           <h1 className="font-display text-3xl italic leading-tight text-ink md:text-4xl">{work.title}</h1>
