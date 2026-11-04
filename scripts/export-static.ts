@@ -17,6 +17,11 @@ const OUT = join(process.cwd(), "public", "data");
 const CONTAINER = process.env.DB_CONTAINER ?? "supabase_db_Dartabase";
 const MAX_POSTINGS = 400; // entries kept per search token
 const MAX_SITE_MB = 900; // GitHub Pages allows 1 GB
+// Which galleries are published. Tiny slices of a collection are not useful and
+// cannot be expanded sensibly, so a gallery needs a real sample, and sources
+// that only scatter a few records across many small museums are left out.
+const EXCLUDED_SOURCES = new Set(["joconde"]);
+const MIN_WORKS_PER_GALLERY = 50;
 
 // An image is shown only where the source has openly licensed it. Commons
 // files are free by definition; "see source", rights-reserved and bare
@@ -90,10 +95,9 @@ async function main() {
   const artists = await rows<DbArtist>(
     "select id,name,sort_name,also_known_as,birth_year,death_year,nationality,image_url,wikidata_id,merged_into from artists",
   );
-  const artworks = await rows<DbArtwork>(
+  const allWorks = await rows<DbArtwork>(
     "select id,title,artist_id,date_text,date_year,medium,dimensions,current_institution_id,credit_line,image_url,image_license,source,source_id,source_url,cultural_notice,cultural_attribution,classification from artworks where title is not null and title <> ''",
   );
-  console.log(`read ${artworks.length} artworks, ${artists.length} artists, ${institutions.length} institutions`);
 
   // Follow merge chains so every reference lands on a surviving record.
   const instById = new Map(institutions.map((i) => [i.id, i]));
@@ -106,12 +110,25 @@ async function main() {
     return cur && !cur.merged_into ? cur : null;
   };
 
+  const perInstitution = new Map<string, number>();
+  for (const w of allWorks) {
+    if (EXCLUDED_SOURCES.has(w.source)) continue;
+    const i = resolve(instById, w.current_institution_id);
+    if (i) perInstitution.set(i.id, (perInstitution.get(i.id) ?? 0) + 1);
+  }
+  const artworks = allWorks.filter((w) => {
+    if (EXCLUDED_SOURCES.has(w.source)) return false;
+    const i = resolve(instById, w.current_institution_id);
+    return !i || (perInstitution.get(i.id) ?? 0) >= MIN_WORKS_PER_GALLERY;
+  });
+  console.log(`read ${allWorks.length} artworks, kept ${artworks.length}; ${artists.length} artists, ${institutions.length} institutions`);
+
   let droppedImages = 0;
   const recordsByShard = new Map<string, Record<string, unknown>>();
   const searchWorks = new Map<string, Map<string, { e: SearchArtwork; rank: number }[]>>();
   const worksByArtist = new Map<string, unknown[][]>();
   const instCounts = new Map<string, { n: number; images: number }>();
-  const featuredPool: { id: string; inst: string; h: number }[] = [];
+  const galleryPool: { id: string; title: string; artist: string; date: string | null; institution: string; image: string; licence: string | null; h: number }[] = [];
 
   for (const w of artworks) {
     const inst = resolve(instById, w.current_institution_id);
@@ -157,10 +174,10 @@ async function main() {
       shardMap.set(t, list);
       searchWorks.set(k, shardMap);
     }
-    if (image && !w.cultural_notice && inst) {
-      let h = 0;
-      for (const ch of w.id) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
-      featuredPool.push({ id: w.id, inst: inst.name, h });
+    if (image && !w.cultural_notice && inst && artist && /public domain|cc0/i.test(w.image_license ?? "") && /commons\.wikimedia\.org/.test(image)) {
+      let g = 0;
+      for (const ch of w.id) g = (g * 31 + ch.charCodeAt(0)) >>> 0;
+      galleryPool.push({ id: w.id, title: w.title, artist: artist.name, date, institution: inst.name, image, licence: w.image_license, h: g });
     }
   }
   console.log(`dropped ${droppedImages} images without an open licence`);
@@ -215,17 +232,15 @@ async function main() {
   writeShards("ar", artistShards);
   writeShards("sa", searchArtists);
 
-  // Home page wall: one work per institution first, then fill, stable order.
-  featuredPool.sort((a, b) => a.h - b.h);
-  const seenInst = new Set<string>();
-  const featured: string[] = [];
-  for (const f of featuredPool) {
-    if (seenInst.has(f.inst)) continue;
-    seenInst.add(f.inst); featured.push(f.id);
-    if (featured.length >= 24) break;
-  }
-  const featuredRecords = featured.map((id) => (recordsByShard.get(idKey(id)) as Record<string, unknown>)[id]);
-  writeFileSync(join(OUT, "featured.json"), JSON.stringify(featuredRecords));
+  // Candidates for the home page gallery (see scripts/fetch-gallery-images.ts).
+  galleryPool.sort((a, b) => a.h - b.h);
+  const perGallery = new Map<string, number>();
+  const candidates = galleryPool.filter((c) => {
+    const n = perGallery.get(c.institution) ?? 0;
+    perGallery.set(c.institution, n + 1);
+    return n < 4;
+  });
+  writeFileSync(join(process.cwd(), ".gallery-candidates.json"), JSON.stringify(candidates));
 
   const insts = [...instCounts.entries()]
     .map(([id, c]) => {
