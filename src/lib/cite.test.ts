@@ -2,12 +2,9 @@ import { describe, expect, test } from "vitest";
 import {
   bibtex,
   buildCitation,
-  buildExhibitionCitation,
   citationToText,
   ris,
-  type CiteExhibition,
   type CitationStyle,
-  type ExhibitionCiteable,
 } from "./cite";
 import type { Artist, ArtworkFull, Institution } from "./types";
 
@@ -86,8 +83,8 @@ function makeArtwork(overrides: Partial<ArtworkFull> = {}): ArtworkFull {
   return { ...base, ...overrides };
 }
 
-function cite(style: CitationStyle, artwork: ArtworkFull, ex?: CiteExhibition): string {
-  return citationToText(buildCitation(style, artwork, ex));
+function cite(style: CitationStyle, artwork: ArtworkFull): string {
+  return citationToText(buildCitation(style, artwork));
 }
 
 describe("buildCitation: happy path", () => {
@@ -148,21 +145,6 @@ describe("harvard style specifics", () => {
     const out = cite("harvard", artwork);
     expect(out).not.toContain("[");
     expect(out).toBe("Picasso, P. (1907) Les Demoiselles d'Avignon.");
-  });
-
-  test("standalone exhibition citation", () => {
-    const exhibition: ExhibitionCiteable = {
-      title: "Cézanne",
-      start_date: "1996-05-30",
-      end_date: "1996-08-18",
-      institution: { name: "Tate Gallery", city: "London" },
-    };
-    const out = citationToText(
-      buildExhibitionCitation("harvard", exhibition, "https://dartabase.app/x"),
-    );
-    expect(out).toBe(
-      "Tate Gallery (1996) Cézanne [Exhibition]. London. Available at: https://dartabase.app/x.",
-    );
   });
 });
 
@@ -313,43 +295,6 @@ describe("optional clauses", () => {
     });
     expect(cite("chicago", artwork)).toContain("Museum of Modern Art.");
     expect(cite("chicago", artwork)).not.toContain("Museum of Modern Art, ,");
-  });
-});
-
-describe("exhibition appendix", () => {
-  test("appends 'Exhibited in' with venue and dates", () => {
-    const artwork = makeArtwork();
-    const ex: CiteExhibition = {
-      title: "Picasso: A Retrospective",
-      venue: "Museum of Modern Art",
-      dates: "1980",
-    };
-    expect(cite("chicago", artwork, ex)).toBe(
-      "Pablo Picasso, Les Demoiselles d'Avignon, 1907, oil on canvas, Museum of Modern Art, New York. Exhibited in Picasso: A Retrospective, Museum of Modern Art, 1980.",
-    );
-  });
-
-  test("exhibition with null venue and dates ends in a single period", () => {
-    const artwork = makeArtwork();
-    const ex: CiteExhibition = {
-      title: "Picasso: A Retrospective",
-      venue: null,
-      dates: null,
-    };
-    const out = cite("chicago", artwork, ex);
-    expect(out).toContain("Exhibited in Picasso: A Retrospective.");
-    expect(out).not.toMatch(/Retrospective\.\./);
-  });
-
-  test("exhibition title is italicised", () => {
-    const artwork = makeArtwork();
-    const parts = buildCitation("chicago", artwork, {
-      title: "Picasso: A Retrospective",
-      venue: null,
-      dates: null,
-    });
-    const titlePart = parts.find((p) => p.text === "Picasso: A Retrospective");
-    expect(titlePart?.italic).toBe(true);
   });
 });
 

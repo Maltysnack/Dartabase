@@ -44,7 +44,6 @@ writeFileSync(
   [
     "# Local Supabase stack (pnpm db:start). Written by pnpm db:env.",
     "NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321",
-    `NEXT_PUBLIC_SUPABASE_ANON_KEY=${key(config, "sb_publishable_")}`,
     `SUPABASE_SERVICE_ROLE_KEY=${key(config, "sb_secret_")}`,
     "NEXT_PUBLIC_SITE_URL=http://localhost:3000",
     "",

@@ -65,62 +65,8 @@ export interface Artwork {
   source_url: string | null;
 }
 
-// A reference to an artist, enough to label and link an artwork.
-export interface ArtistRef {
-  id: string;
-  name: string;
-  sort_name?: string | null;
-  gender?: string | null;
-  nationality?: string | null;
-  movements?: string[];
-  birth_year?: number | null;
-  death_year?: number | null;
-}
-
-// The fields a grid card needs.
-export interface ArtworkCard {
-  id: string;
-  title: string;
-  slug: string | null;
-  image_url: string | null;
-  image_license: string | null;
-  source_url: string | null;
-  date_text: string | null;
-  date_year: number | null;
-  medium: string | null;
-  medium_bucket: string | null;
-  materials?: string[];
-  cultural_notice?: boolean;
-  dimensions?: string | null;
-  artist: ArtistRef | null;
-  institution: { id: string; name: string; slug: string | null; city?: string | null } | null;
-}
-
 // An artwork with its artist and institution fully resolved.
 export interface ArtworkFull extends Artwork {
   artist: Artist | null;
   institution: Institution | null;
-}
-
-export interface Exhibition {
-  id: string;
-  title: string;
-  institution_id: string | null;
-  start_date: string | null;
-  end_date: string | null;
-  description: string | null;
-  source: string;
-  source_url: string | null;
-}
-
-export interface ExhibitionWithInstitution extends Exhibition {
-  institution: Institution | null;
-}
-
-// The most recent exhibition appearance for a single artwork, used by the
-// artist timeline to show "Shown at [Venue], [Year]" on each work entry.
-export interface ExhibitionHighlight {
-  year: number;
-  venueName: string | null;
-  exhibitionId: string;
 }

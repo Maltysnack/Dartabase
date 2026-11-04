@@ -1,4 +1,3 @@
-import type { ArtworkCard, ArtworkFull } from "./types";
 
 // Minimal shape needed by bibtex() and ris() -- a subset of ArtworkFull that
 // ExportRow and other lightweight shapes also satisfy.
@@ -25,12 +24,6 @@ export type ArtworkCiteable = {
   artist: { name: string; sort_name?: string | null } | null;
   institution: { name: string; city?: string | null } | null;
 };
-
-// Cast an ArtworkCard to ArtworkCiteable. The card shape satisfies the
-// required fields after CARD_SELECT was extended with sort_name and city.
-export function cardForCitation(card: ArtworkCard): ArtworkCiteable {
-  return card as ArtworkCiteable;
-}
 
 export const CITATION_STYLES = ["chicago", "mla", "apa", "harvard"] as const;
 export type CitationStyle = (typeof CITATION_STYLES)[number];
@@ -210,27 +203,9 @@ function harvard(artwork: ArtworkCiteable): CitationPart[] {
   return parts;
 }
 
-// An exhibition the work was seen in, for an optional appended clause.
-export interface CiteExhibition {
-  title: string;
-  venue: string | null;
-  dates: string | null;
-}
-
-function exhibitionParts(exhibition: CiteExhibition): CitationPart[] {
-  const parts: CitationPart[] = [{ text: " Exhibited in " }];
-  parts.push({ text: exhibition.title, italic: true });
-  const tail = [exhibition.venue, exhibition.dates].filter(
-    (value): value is string => value !== null && value !== "",
-  );
-  parts.push({ text: tail.length > 0 ? `, ${tail.join(", ")}.` : "." });
-  return parts;
-}
-
 export function buildCitation(
   style: CitationStyle,
   artwork: ArtworkCiteable,
-  exhibition?: CiteExhibition | null,
 ): CitationPart[] {
   let parts: CitationPart[];
   switch (style) {
@@ -248,7 +223,7 @@ export function buildCitation(
       parts = chicago(artwork);
       break;
   }
-  return exhibition ? [...parts, ...exhibitionParts(exhibition)] : parts;
+  return parts;
 }
 
 export function citationToText(parts: CitationPart[]): string {
@@ -281,32 +256,6 @@ export function bibtex(artwork: ArtworkExportable, citeUrl: string): string {
   return lines.join("\n");
 }
 
-// Wall label / tombstone format for curators. Returns plain text with newlines.
-//   Artist Name
-//   Title, date
-//   Medium
-//   Dimensions
-//   Collection, City. Credit line. Accession no.
-// Missing fields are omitted; the last line is only emitted when at least
-// one of its constituents is present.
-export function wallLabel(artwork: ArtworkFull): string {
-  const lines: string[] = [];
-  if (artwork.artist) lines.push(artwork.artist.name);
-  const date = artworkDate(artwork.date_text, artwork.date_year);
-  lines.push([artwork.title, date].filter(Boolean).join(", "));
-  if (artwork.medium) lines.push(artwork.medium);
-  if (artwork.dimensions) lines.push(artwork.dimensions);
-  const lastParts = [
-    [artwork.institution?.name, artwork.institution?.city]
-      .filter(Boolean)
-      .join(", "),
-    artwork.credit_line?.replace(/\.+\s*$/, "") || null,
-    artwork.source_id ? `Accession no. ${artwork.source_id}` : null,
-  ].filter((p): p is string => Boolean(p));
-  if (lastParts.length > 0) lines.push(lastParts.join(". ") + ".");
-  return lines.join("\n");
-}
-
 // RIS export (TY=ART).
 export function ris(artwork: ArtworkExportable, citeUrl: string): string {
   const authorName = artwork.artist?.name;
@@ -328,153 +277,4 @@ export function ris(artwork: ArtworkExportable, citeUrl: string): string {
   lines.push(`UR  - ${citeUrl}`);
   lines.push("ER  - ");
   return lines.join("\r\n");
-}
-
-// ---------------------------------------------------------------------------
-// Exhibition citations
-// ---------------------------------------------------------------------------
-
-export type ExhibitionCiteable = {
-  title: string;
-  start_date: string | null;
-  end_date: string | null;
-  institution: { name: string; city: string | null } | null;
-};
-
-const MONTH_NAMES = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
-];
-
-const MONTH_ABBR = [
-  "Jan.", "Feb.", "Mar.", "Apr.", "May", "Jun.",
-  "Jul.", "Aug.", "Sep.", "Oct.", "Nov.", "Dec.",
-];
-
-function parseIsoDate(iso: string | null): { year: number; month: number; day: number } | null {
-  if (!iso) return null;
-  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso);
-  if (!m) return null;
-  return { year: parseInt(m[1], 10), month: parseInt(m[2], 10), day: parseInt(m[3], 10) };
-}
-
-function chicagoDate(iso: string | null): string {
-  const d = parseIsoDate(iso);
-  if (!d) return "";
-  return `${MONTH_NAMES[d.month - 1]} ${d.day}, ${d.year}`;
-}
-
-function mlaDate(iso: string | null): string {
-  const d = parseIsoDate(iso);
-  if (!d) return "";
-  return `${d.day} ${MONTH_ABBR[d.month - 1]} ${d.year}`;
-}
-
-function exhibitionYear(start: string | null, end: string | null): string {
-  const s = parseIsoDate(start);
-  const e = parseIsoDate(end);
-  if (s) return String(s.year);
-  if (e) return String(e.year);
-  return "n.d.";
-}
-
-function chicagoDateRange(start: string | null, end: string | null): string {
-  const s = chicagoDate(start);
-  const e = chicagoDate(end);
-  if (s && e) return `${s} – ${e}`;
-  if (s) return s;
-  if (e) return e;
-  return "";
-}
-
-function mlaDateRange(start: string | null, end: string | null): string {
-  const s = mlaDate(start);
-  const e = mlaDate(end);
-  if (s && e) return `${s} – ${e}`;
-  if (s) return s;
-  if (e) return e;
-  return "";
-}
-
-function exhibitionChicago(ex: ExhibitionCiteable, url: string): CitationPart[] {
-  const parts: CitationPart[] = [];
-  parts.push({ text: ex.title, italic: true });
-  const venueCity = [ex.institution?.name, ex.institution?.city]
-    .filter(Boolean)
-    .join(", ");
-  if (venueCity) parts.push({ text: `. ${venueCity}.` });
-  else parts.push({ text: "." });
-  const dates = chicagoDateRange(ex.start_date, ex.end_date);
-  if (dates) parts.push({ text: ` ${dates}.` });
-  parts.push({ text: " Dartabase. " });
-  parts.push({ text: url });
-  parts.push({ text: "." });
-  return parts;
-}
-
-function exhibitionMla(ex: ExhibitionCiteable, url: string): CitationPart[] {
-  const parts: CitationPart[] = [];
-  parts.push({ text: ex.title, italic: true });
-  const venueCity = [ex.institution?.name, ex.institution?.city]
-    .filter(Boolean)
-    .join(", ");
-  if (venueCity) parts.push({ text: `. ${venueCity}.` });
-  else parts.push({ text: "." });
-  const dates = mlaDateRange(ex.start_date, ex.end_date);
-  if (dates) parts.push({ text: ` ${dates}.` });
-  parts.push({ text: " Dartabase, " });
-  parts.push({ text: url });
-  parts.push({ text: "." });
-  return parts;
-}
-
-function exhibitionApa(ex: ExhibitionCiteable, url: string): CitationPart[] {
-  const parts: CitationPart[] = [];
-  if (ex.institution?.name) {
-    parts.push({ text: `${ex.institution.name}. ` });
-  }
-  const year = exhibitionYear(ex.start_date, ex.end_date);
-  parts.push({ text: `(${year}). ` });
-  parts.push({ text: ex.title, italic: true });
-  parts.push({ text: " [Exhibition record]." });
-  const venueCity = [ex.institution?.name, ex.institution?.city]
-    .filter(Boolean)
-    .join(", ");
-  if (venueCity) parts.push({ text: ` ${venueCity}.` });
-  parts.push({ text: ` ${url}.` });
-  return parts;
-}
-
-function exhibitionHarvard(ex: ExhibitionCiteable, url: string): CitationPart[] {
-  // Harvard (Cite Them Right) for an exhibition:
-  //   Institution (Year) Title [Exhibition]. City. Available at: url.
-  const parts: CitationPart[] = [];
-  if (ex.institution?.name) {
-    parts.push({ text: `${ex.institution.name} ` });
-  }
-  const year = exhibitionYear(ex.start_date, ex.end_date);
-  parts.push({ text: `(${year}) ` });
-  parts.push({ text: ex.title, italic: true });
-  parts.push({ text: " [Exhibition]." });
-  if (ex.institution?.city) parts.push({ text: ` ${ex.institution.city}.` });
-  parts.push({ text: ` Available at: ${url}.` });
-  return parts;
-}
-
-export function buildExhibitionCitation(
-  style: CitationStyle,
-  exhibition: ExhibitionCiteable,
-  url: string,
-): CitationPart[] {
-  switch (style) {
-    case "mla":
-      return exhibitionMla(exhibition, url);
-    case "apa":
-      return exhibitionApa(exhibition, url);
-    case "harvard":
-      return exhibitionHarvard(exhibition, url);
-    case "chicago":
-    default:
-      return exhibitionChicago(exhibition, url);
-  }
 }
