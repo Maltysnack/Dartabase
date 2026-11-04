@@ -155,10 +155,10 @@ function mapArtist(artist: AicArtist): ArtistRow {
     sort_name: artist.sort_title ?? null,
     birth_year: saneYear(artist.birth_date),
     death_year: saneYear(artist.death_date),
-    // The artist page no longer displays source-provided long-form bios; per
-    // issue #21 Dartabase carries only short, factual identification computed
-    // from structured data. Leaving the column null so re-running this adapter
-    // clears any historical editorial copy.
+    // The artist page does not display source-provided long-form bios. Dartabase
+    // carries only short, factual identification computed from structured data.
+    // The column stays null so re-running this adapter clears any historical
+    // editorial copy.
     bio: null,
     source_url: `https://www.artic.edu/artists/${artist.id}`,
   };

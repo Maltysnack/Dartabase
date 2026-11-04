@@ -26,7 +26,7 @@ describe("yearFromText", () => {
     ["c. 2300 BCE", -2300],
     ["2040–1783 BCE", -2040],
     ["mid 4th millennium BCE (Predynastic)", null],
-    // 425 BC (no 'E') — the bug class includes this short form
+    // 425 BC (no 'E') - the bug class includes this short form
     ["425 BC", -425],
     // BCE inside a longer phrase
     ["Made circa 3000 BCE in Mesopotamia", -3000],

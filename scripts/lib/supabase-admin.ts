@@ -3,8 +3,8 @@ import ws from "ws";
 
 // supabase-js builds a Realtime client that expects a WebSocket. Node 20, used
 // by these standalone scripts, has no native WebSocket, so provide one. We do
-// not use Realtime; this only satisfies the constructor. Node 22+ and the
-// Vercel runtime have WebSocket natively, so this is a no-op there.
+// not use Realtime; this only satisfies the constructor. Node 22+ has
+// WebSocket natively, so this is a no-op there.
 if (typeof globalThis.WebSocket === "undefined") {
   (globalThis as unknown as { WebSocket: unknown }).WebSocket = ws;
 }

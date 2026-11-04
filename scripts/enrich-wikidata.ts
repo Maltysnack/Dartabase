@@ -1,4 +1,4 @@
-// Wikidata enrichment for canonical artists (issue #13).
+// Wikidata enrichment for canonical artists.
 //
 // For each canonical artist that carries a Wikidata Q-ID (directly or via a
 // GND identifier we can resolve), fetch:
@@ -27,7 +27,7 @@ const DEFAULT_DELAY_MS = 800;
 const OCCUPATION_CAP = 3;
 const MOVEMENT_CAP = 3;
 
-// Acceptlist of art-relevant occupations (issue #25). Wikidata's P106 set is
+// Acceptlist of art-relevant occupations. Wikidata's P106 set is
 // often polluted by incidental credits ("screenwriter" because the artist's
 // work appeared in a film, "writer" because they signed a manifesto), so we
 // only surface labels from this list. Order is the priority order used when
@@ -193,7 +193,7 @@ function lifeSpan(birth: number | null, death: number | null): string {
   return "";
 }
 
-// Synthesises the Dartabase-standard short factual bio (#21 + #25).
+// Synthesises the Dartabase-standard short factual bio.
 // Format depends on what we have:
 //   demonym + acceptlisted occupations + span:
 //     "Spanish painter, sculptor, printmaker. 1881-1973."
@@ -445,7 +445,7 @@ async function main(): Promise<void> {
       fields.nationality = demonymOrCountry;
     }
     // Filter through the art acceptlist first, then cap, so the slice never
-    // throws away a "painter" in favour of "screenwriter" (#25).
+    // throws away a "painter" in favour of "screenwriter".
     const occupations = filterArtOccupations(data.occupations).slice(
       0,
       OCCUPATION_CAP,

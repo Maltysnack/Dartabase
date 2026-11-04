@@ -283,7 +283,7 @@ export const MUSEUMS: Record<string, MuseumConfig> = {
       "https://www.smb.museum/",
     ),
   },
-  // First Latin American coverage (addresses the geographic-gap issue #188).
+  // First Latin American coverage (fills a geographic gap).
   // Fine-art (painting) collections, not anthropology/pre-Columbian holdings.
   masp: {
     source: "masp",

@@ -1,6 +1,6 @@
 // One-shot script that ingests all works by marquee modern/contemporary artists
-// missing from Dartabase (#53). Streams the full Tate and Whitney CSVs but only
-// upserts rows for the target artist IDs — no arbitrary row limit needed.
+// missing from Dartabase. Streams the full Tate and Whitney CSVs but only
+// upserts rows for the target artist IDs - no arbitrary row limit needed.
 //
 // Target artists and their IDs in each source:
 //   Tate:    Bacon 682, Bourgeois 2351, Freud 1120, Hirst 2308, Hockney 1293,
@@ -132,7 +132,7 @@ async function runTate(supabase: SupabaseClient | null): Promise<void> {
   console.log(`[gap:tate] ${artworks.length} artworks for ${seenArtists.size} artists`);
 
   if (DRY_RUN) {
-    console.log("[gap:tate] DRY RUN — sample:");
+    console.log("[gap:tate] DRY RUN - sample:");
     for (const a of artworks.slice(0, 3)) console.log(" ", a.title, "|", a.artist_source_id);
     return;
   }
@@ -260,7 +260,7 @@ async function runWhitney(supabase: SupabaseClient | null): Promise<void> {
   console.log(`[gap:whitney] ${artworks.length} artworks for ${seenArtists.size} artists`);
 
   if (DRY_RUN) {
-    console.log("[gap:whitney] DRY RUN — sample:");
+    console.log("[gap:whitney] DRY RUN - sample:");
     for (const a of artworks.slice(0, 3)) console.log(" ", a.title, "|", a.artist_source_id);
     return;
   }
@@ -327,7 +327,7 @@ async function chunkedUpsert(
 // ---------------------------------------------------------------------------
 
 async function main(): Promise<void> {
-  console.log(`[gap] Coverage gap fill — ${DRY_RUN ? "DRY RUN" : "LIVE"}`);
+  console.log(`[gap] Coverage gap fill - ${DRY_RUN ? "DRY RUN" : "LIVE"}`);
   const supabase = DRY_RUN ? null : createAdminClient();
   await runTate(supabase);
   await runWhitney(supabase);

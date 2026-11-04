@@ -50,7 +50,7 @@ async function main() {
       .eq("artist_id", artist.id);
     totalArtworks += count ?? 0;
     console.log(
-      `  [${artist.source}] "${artist.name}" — ${count} artworks`,
+      `  [${artist.source}] "${artist.name}" - ${count} artworks`,
     );
   }
   console.log(`[consolidate-unknown] total artworks to repoint: ${totalArtworks}`);

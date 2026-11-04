@@ -5,7 +5,7 @@
 //
 // ICIP note: this query will return First Nations artists and artworks. We only
 // take what Wikidata has already published, never more, and the site carries a
-// standing cultural advisory. See CLAUDE.md and GitHub issue #11.
+// standing cultural advisory. See CLAUDE.md.
 //
 // Modes:
 //   --dry-run          Fetch and map, print a summary, write nothing.
@@ -79,7 +79,7 @@ SELECT ?artwork ?artworkLabel ?creator ?creatorLabel ?inception ?image
   # Pull P195 only when it points at a non-human entity. Wikidata uses P195
   # ("collection") for both holding institutions and notable private
   # collectors (e.g. Q1226322 Walter Baldwin Spencer was attached to one
-  # work — see #62/#64). FILTER NOT EXISTS keeps the OPTIONAL itself
+  # work). FILTER NOT EXISTS keeps the OPTIONAL itself
   # ungated, so the artwork row still emits with ?collection unbound when
   # the collection turns out to be a person.
   OPTIONAL {
@@ -266,8 +266,7 @@ function buildSeedSql(data: Mapped): string {
 
   if (data.institutions.length > 0) {
     // For Wikidata-sourced institutions the source_id IS the QID, so it doubles
-    // as wikidata_id; writing both at ingest time avoids the manual one-time
-    // backfill that issue #24 captured.
+    // as wikidata_id; writing both at ingest time avoids a separate backfill step.
     const rows = data.institutions.map(
       (institution) =>
         `  (${sqlText(SOURCE)}, ${sqlText(institution.source_id)}, ` +

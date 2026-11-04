@@ -1,4 +1,4 @@
-// Cross-source deduplication (GitHub issue #2).
+// Cross-source deduplication.
 //
 // The same artist or institution arrives from several source APIs (Auguste
 // Rodin appears once per museum). This pass folds those duplicates together so
@@ -13,7 +13,7 @@
 //     repointed onto the survivor, so artwork counts aggregate correctly.
 //   - The survivor is enriched with any non-null fields the losers carry that
 //     it lacks (birth/death year, nationality, bio, wikidata_id), satisfying
-//     the Wikidata-enrichment half of issue #2.
+//     the Wikidata-enrichment half of this work.
 //
 // Idempotent: rows already merged are skipped, and an established survivor is
 // kept as survivor on re-runs so detail-page URLs stay stable. Run it after
@@ -181,7 +181,7 @@ async function dedupeArtists(
 
   // Group canonical rows by either normalized name OR shared wikidata_id, via
   // union-find. The Q-ID edge is the structural fix for cases the trigram
-  // similarity misses (issue #20): two rows with different names but the same
+  // similarity misses: two rows with different names but the same
   // Wikidata Q-ID are the same person, full stop.
   const parent = new Map<string, string>();
   const find = (x: string): string => {
@@ -200,7 +200,7 @@ async function dedupeArtists(
   const nameSeed = new Map<string, string>();
   const qidSeed = new Map<string, string>();
   // (birth_year|death_year|last_name) tuple seed. Catches "Pablo Picasso" vs
-  // "Pablo Ruiz Picasso" (issue #20) and other cases where one source carries
+  // "Pablo Ruiz Picasso" and other cases where one source carries
   // the catalogued full name and another the shortened working name. Trigram
   // similarity misses these because the inserted middle name shifts too many
   // trigrams; identical life dates plus a shared family-name token is a much

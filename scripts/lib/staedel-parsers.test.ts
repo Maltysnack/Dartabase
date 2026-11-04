@@ -28,7 +28,7 @@ describe("flipSurnameFirst", () => {
 
   test("only splits on the FIRST ', ' (preserves later commas)", () => {
     // The split limit of 2 means anything after the second comma is
-    // intentionally dropped. This matches the adapter's behaviour — if
+    // intentionally dropped. This matches the adapter's behaviour - if
     // Städel ships "Rijn, Rembrandt van, II" we deliberately discard
     // the "II" rather than guess where it belongs.
     expect(flipSurnameFirst("Rijn, Rembrandt van, II")).toBe(
@@ -39,7 +39,7 @@ describe("flipSurnameFirst", () => {
   test("does not flip when there is no ', ' separator (just a comma)", () => {
     // The comma-space check requires both characters; "Picasso,Pablo"
     // (no space) does not match and is treated as a single token. This
-    // is intentional — LIDO records always use ", " as the separator.
+    // is intentional - LIDO records always use ", " as the separator.
     expect(flipSurnameFirst("Picasso,Pablo")).toBe("Picasso,Pablo");
   });
 });

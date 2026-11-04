@@ -6,7 +6,7 @@ export function clean(value: string | undefined | null): string | null {
   return s.replace(/\s*\n\s*/g, "; ").replace(/[ \t]{2,}/g, " ");
 }
 
-// Tate artist names are "Surname, Forename" — flip to "Forename Surname".
+// Tate artist names are "Surname, Forename" - flip to "Forename Surname".
 // Names without a comma are returned as-is.
 export function flipName(name: string): string {
   const comma = name.indexOf(",");
