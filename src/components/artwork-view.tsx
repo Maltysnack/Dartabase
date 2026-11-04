@@ -47,9 +47,9 @@ export function ArtworkView() {
             href={takedownIssueUrl({ recordTitle: work.title, recordUrl: pageUrl })}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-3 inline-block font-mono text-[10px] uppercase tracking-wider text-ink underline underline-offset-4 hover:opacity-70"
+            className="mt-3 inline-block font-mono text-[10px] uppercase tracking-wider ext text-ink hover:opacity-70"
           >
-            Request removal or restriction ↗
+            Request removal or restriction
           </a>
         </div>
       )}
@@ -134,18 +134,18 @@ export function ArtworkView() {
                   href={work.sourceUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={`${label} underline underline-offset-4 hover:text-ink`}
+                  className={`${label} ext hover:text-ink`}
                 >
-                  View source record ↗
+                  View source record
                 </a>
               )}
               <a
                 href={correctionIssueUrl({ recordType: "artwork", recordTitle: work.title, recordUrl: pageUrl })}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`${label} underline underline-offset-4 hover:text-ink`}
+                className={`${label} ext hover:text-ink`}
               >
-                Suggest a correction ↗
+                Suggest a correction
               </a>
             </div>
           </div>

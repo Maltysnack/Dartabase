@@ -21,14 +21,14 @@ export function SiteFooter() {
   return (
     <footer className="mt-24 border-t border-line">
       <div className="mx-auto max-w-[1500px] px-6 py-10 md:px-10">
-        <p className="max-w-2xl font-display text-sm leading-relaxed text-muted">
+        <p className="font-display text-[13px] leading-relaxed text-muted">
           Aboriginal and Torres Strait Islander peoples are advised that
           Dartabase may contain images, names, and works of people who have
           died.
         </p>
         <div className="mt-8 flex flex-col gap-6 border-t border-line pt-8 font-mono text-[10px] uppercase tracking-[0.12em] text-muted sm:flex-row sm:items-center sm:justify-between">
           <p className="leading-relaxed">Dartabase, a reference for art and its makers</p>
-          <Link href="/galleries/" className="transition-colors hover:text-ink">
+          <Link href="/galleries/" className="ext transition-colors hover:text-ink">
             Galleries and sources
           </Link>
         </div>

@@ -2,16 +2,24 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { artworkHref, getFeatured, getStats, type Stats, type Work } from "@/lib/data";
+import {
+  artworkHref,
+  BASE,
+  getGalleryTiles,
+  getStats,
+  type GalleryTile,
+  type Stats,
+} from "@/lib/data";
 import { SearchBox } from "./search-box";
-import { WorkImage } from "./work-image";
+
+const TILES = 24;
 
 export function HomeView() {
-  const [featured, setFeatured] = useState<Work[]>([]);
+  const [tiles, setTiles] = useState<GalleryTile[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
 
   useEffect(() => {
-    getFeatured().then((f) => setFeatured(f ?? []));
+    getGalleryTiles(TILES).then(setTiles);
     getStats().then(setStats);
   }, []);
 
@@ -30,9 +38,8 @@ export function HomeView() {
             : ""}
         </p>
         <p className="mt-2 font-display text-sm text-muted">
-          Includes the Queensland, Victorian, New South Wales, South Australian, Western Australian
-          and National galleries.{" "}
-          <Link href="/galleries/" className="underline underline-offset-4 hover:text-ink">
+          Includes the Queensland, Victorian, New South Wales, South Australian and National galleries.{" "}
+          <Link href="/galleries/" className="ext hover:text-ink">
             See all galleries
           </Link>
         </p>
@@ -40,19 +47,23 @@ export function HomeView() {
 
       <h2 className="mt-20 font-display text-lg text-ink">In the collection</h2>
       <ul className="mt-6 grid grid-cols-2 gap-5 md:grid-cols-3 lg:grid-cols-4">
-        {featured.map((w) => (
-          <li key={w.id}>
-            <Link href={artworkHref(w.id)} className="group block border border-line bg-raised">
+        {tiles.map((t) => (
+          <li key={t.id}>
+            <Link href={artworkHref(t.id)} className="group block border border-line bg-raised">
               <div className="relative aspect-[4/5] overflow-hidden bg-raised">
-                <WorkImage src={w.image} alt={w.title} fit="contain" />
+                <img
+                  src={`${BASE}/gallery/${t.file}`}
+                  alt={t.title}
+                  className="absolute inset-0 h-full w-full object-contain"
+                />
               </div>
               <div className="px-3 py-3">
-                <p className="font-display italic text-ink group-hover:underline">{w.title}</p>
+                <p className="font-display italic text-ink group-hover:underline">{t.title}</p>
                 <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.1em] text-muted">
-                  {[w.artist?.name, w.date].filter(Boolean).join(" · ")}
+                  {[t.artist, t.date].filter(Boolean).join(" · ")}
                 </p>
                 <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.1em] text-muted">
-                  {w.institution?.name}
+                  {t.institution}
                 </p>
               </div>
             </Link>

@@ -95,7 +95,26 @@ export async function getArtist(id: string): Promise<ArtistRecord | null> {
   return shard?.[id] ?? null;
 }
 
-export const getFeatured = () => getJson<Work[]>("featured.json");
+export interface GalleryTile {
+  file: string;
+  id: string;
+  title: string;
+  artist: string;
+  date: string | null;
+  institution: string;
+}
+
+// A random selection from the public-domain images stored in /gallery, so the
+// home page shows a fresh set on every visit with no hotlink delay.
+export async function getGalleryTiles(count: number): Promise<GalleryTile[]> {
+  const res = await fetch(`${BASE}/gallery/index.json`).catch(() => null);
+  const pool: GalleryTile[] = res?.ok ? await res.json() : [];
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  return pool.slice(0, count);
+}
 export const getGalleries = () => getJson<GalleryRow[]>("institutions.json");
 export const getStats = () => getJson<Stats>("stats.json");
 

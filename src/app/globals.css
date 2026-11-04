@@ -11,6 +11,13 @@
   --font-mono: var(--font-plex-mono), ui-monospace, monospace;
 }
 
+/* External and secondary links: a dotted underline, no glyph. */
+.ext {
+  text-decoration-line: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 4px;
+}
+
 @layer base {
   html {
     -webkit-text-size-adjust: 100%;
