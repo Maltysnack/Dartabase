@@ -28,7 +28,7 @@ Several large Australian galleries could not be added because there is nothing t
 | Europeana (sample) | REST API | CC0 | Per record: CC BY-SA or public domain |
 | National Taiwan Museum of Fine Arts, Kaohsiung Museum of Fine Arts | collections.culture.tw open data | CC BY 4.0 | None published |
 | Tokyo metropolitan museums (TOMuCo) | Open-data download | Per source (not confirmed) | None |
-| QAGOMA (Queensland) | Queensland open-data CSV | Queensland Government open data (published as CC BY 4.0; confirm at the dataset page) | None published |
+| QAGOMA (Queensland) | Queensland Government Open Data Portal CSV | Creative Commons Attribution 4.0 (checked on the portal on 2026-11-05). Attribution: "Contains data from the Queensland Art Gallery and Gallery of Modern Art (QAGOMA), Queensland Government Open Data Portal, CC BY 4.0." | None published |
 | Wikidata collections: Uffizi, Capodimonte, Hermitage, Frick, Prado, National Gallery London, Fitzwilliam, Scottish National Gallery, Nationalmuseum Stockholm, National Palace Museum Taipei, Warsaw, Bavarian State Painting Collections, and about 30 more | Wikidata SPARQL (`P195` collection) | CC0 (Wikidata) | Wikimedia Commons file, linked directly; the per-file licence applies and is one click away |
 | NGV, Art Gallery of NSW, National Gallery of Australia, Art Gallery of South Australia, Art Gallery of Western Australia | Wikidata SPARQL, `--metadata-only` | CC0 (Wikidata) | None ever stored |
 
@@ -47,7 +47,7 @@ Wikimedia Commons asks reusers to follow each file's licence and credit; the rec
 Aboriginal and Torres Strait Islander material is governed by community protocol, not only by copyright.
 
 - A standing advisory about names and works of people who have died appears on every page.
-- Records are flagged `icip` and show a Cultural advisory with a removal link when any of these hold: the source marks the record as First Nations (QAGOMA's Indigenous Australian Art department), Wikidata records the creator's ethnic group as First Nations, the creator already has a flagged work, the creator's name carries a Western Desert, Warlpiri, Yolngu or Tiwi skin or clan name, or the title names a Dreaming or Tjukurrpa (`scripts/flag-first-nations.ts`).
+- Records are flagged `icip` and show a Cultural advisory with a removal link when any of these hold: the source marks the record as First Nations (QAGOMA's Indigenous Australian Art department), Wikidata records the creator's ethnic group as First Nations, the creator already has a flagged work, the creator's name carries a Western Desert, Warlpiri, Yolngu or Tiwi skin or clan name, the title names a Dreaming or Tjukurrpa, the title names Aboriginal, Torres Strait or Indigenous people, or the artist is on the reviewed list in `scripts/icip-extra-artists.txt` (`scripts/flag-first-nations.ts`).
 - This is a safety net, not a classification. It will miss records and over-flag some. Nothing here replaces the holding institution's own cultural process, and the project never publishes anything an institution has not already published.
 - Sacred or restricted records marked as such by a source must not be exported. If you find one, report it.
 

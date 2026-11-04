@@ -1,0 +1,3 @@
+# Artists whose works should always carry the First Nations cultural advisory.
+# One name per line, matched case-insensitively against the artist name.
+# Add a name after checking it with the holding institution or the artist's community.

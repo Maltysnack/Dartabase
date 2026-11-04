@@ -150,8 +150,6 @@ repository name) when building for a project page.
 - First Nations flags are heuristic. They add to what Wikidata and the source
   institutions record and will miss some records and over-flag others, so a human
   review of a sample is still needed.
-- The QAGOMA licence is recorded as Creative Commons Attribution 4.0 as published
-  on the Queensland open-data portal; confirm it at the dataset page before reuse.
 - Wikidata coverage of the Australian galleries is partial and thin on images.
 - Hotlinked images can disappear if a museum moves them; the frame then stays empty.
 
