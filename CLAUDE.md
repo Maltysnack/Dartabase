@@ -32,7 +32,8 @@ faceted browse, feeds, and anything that needs a server.
 ## Commands
 
 - `pnpm dev`, `pnpm build` (writes `out/`), `pnpm lint`, `pnpm test`
-- `pnpm db:start`, `db:stop`, `db:env`, `db:load-ndjson`: local database
+- `pnpm db:start`, `db:stop`, `db:env`, `db:restore`, `db:load-ndjson`: local database
+- `pnpm gallery:fetch`: refresh the home page image pool after an export
 - `pnpm ingest:<source> -- --limit <n>`: always bounded; `--dry-run` first
 - `pnpm dedup`, `pnpm flag:icip -- --apply`, `pnpm export`
 
@@ -68,7 +69,8 @@ community protocol, not only copyright.
 - Free, and not a business. No paid tier, no advertising.
 - Provenance on every field; every record links to its source.
 - Metadata first. Never host images; link to the rights holder, and only show
-  images that are openly licensed.
+  images that are openly licensed. The one exception is the small public-domain
+  pool in `public/gallery` for the home page.
 - Stand back: the interface is quiet so the artworks are the beauty on the page.
 
 ## Conventions

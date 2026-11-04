@@ -15,19 +15,28 @@ Every gallery has one ingestion script. Each pulls from the museum's own open-da
 feed (or from Wikidata) and writes into a local database. `pnpm export` then writes
 the whole database out as the static files the site reads.
 
-## One-time setup
+## Doing it yourself
 
-You need Node 20+, pnpm and Docker (on macOS, Colima: `colima start`).
+Anyone can do this. Fork or clone the repository, set up the tools below, add
+records, rebuild, and publish your own copy (or send the changes back as a pull
+request).
+
+You need Node 20+, pnpm, Docker (on macOS, Colima: `colima start`) and a clone:
 
 ```bash
+git clone https://github.com/Maltysnack/Dartabase.git
+cd Dartabase
 pnpm install
 pnpm db:start        # local Postgres in Docker, schema applied
 pnpm db:env          # writes .env.local pointing at it
+pnpm db:restore      # downloads the published data snapshot and loads it
 ```
 
-The local database starts empty. To keep the existing sample, restore it first
-(see "Restoring the current sample" below), then add to it. Skipping that step
-works too: the export will then contain only what you ingest.
+The local database is where the work happens, and `pnpm export` writes the whole
+database out as the static site. That is why the last step matters: the committed
+`public/data` is generated output, so an empty database would produce an empty site.
+`pnpm db:restore` loads the snapshot of today's sample first (a release asset on the
+repository, about 33 MB), and everything you ingest is added to it.
 
 ## Expanding one gallery
 
@@ -53,15 +62,16 @@ works too: the export will then contain only what you ingest.
    pnpm build
    ```
 
-5. Commit `public/data` and push. The Pages workflow publishes it.
+5. Preview with `pnpm dev`, then commit `public/data` and push. The Pages workflow
+   publishes it. Only galleries with at least 50 works appear on the site.
 
 Every ingestion script requires `--limit`. Never run an unbounded pull.
 
 ## How much room there is
 
-The site costs about 1.8 KB per work in `public/data`. GitHub Pages allows 1 GB, and
-the export and the deploy both stop at 900 MB. That is roughly 500,000 works in
-total, about 370,000 more than today. The big feeds are larger than that (the Met
+The site costs about 1.4 KB per work in `public/data`. GitHub Pages allows 1 GB, and
+the export and the deploy both stop at 900 MB. Today's site is about 200 MB, so there is
+room for roughly 500,000 more works. The big feeds are larger than that (the Met
 alone has around 490,000 open-access objects, the Rijksmuseum around 800,000, mostly
 prints), so choose what you add: works with an image and a named artist are the most
 useful. `pnpm export` prints the size and fails if you are over budget.
@@ -157,15 +167,29 @@ give better data.
 - **Be polite to sources.** Use `--limit`, do not hammer an API, and keep the
   `User-Agent` the scripts set.
 
-## Restoring the current sample
+## Galleries that cannot be added yet
 
-The live sample is rebuilt from a database backup that is not committed (it is large).
-If you have `supabase/dump/*.ndjson`, run:
+Adding a gallery needs something to ingest: an open API, a dataset, or well-populated
+Wikidata items. These large Australian galleries have none, so they are not listed on the
+site:
 
-```bash
-pnpm db:start
-pnpm db:load-ndjson
-```
+| Gallery | Why not |
+|---|---|
+| Museum of Contemporary Art Australia, Sydney | No open feed found, and no works recorded on Wikidata. |
+| Museum of Old and New Art (MONA), Hobart | One work on Wikidata, no open feed. |
+| Art Gallery of Western Australia | Nine works on Wikidata, no open feed. |
+| Tasmanian Museum and Art Gallery | Two works on Wikidata, no open feed. |
+| Art Gallery of Ballarat, Newcastle Art Gallery | A handful of works on Wikidata, no open feed. |
 
-If you do not, ingest what you want from the tables above, or edit nothing and keep
-using the committed `public/data` as it is.
+Ways to change that: ask the gallery whether it will publish its collection as open data
+(a CSV or API is enough); add its works to Wikidata (`P195` collection, with creator and
+inception), which then makes `--museum` adapters work for it and helps everyone who uses
+Wikidata; or, if a gallery does publish data, write a direct adapter (see
+`scripts/ingest-qagoma.ts` for a small example).
+
+## The home page images
+
+The wall on the home page uses 72 public-domain thumbnails stored in `public/gallery`,
+so it loads instantly and shows a different random set on every visit. After a new
+export, refresh them with `pnpm gallery:fetch`, which downloads fresh thumbnails from
+Wikimedia Commons for public-domain and CC0 works only.

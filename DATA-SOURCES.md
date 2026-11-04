@@ -7,7 +7,14 @@ Dartabase mirrors what institutions have chosen to publish, and nothing else. It
 - **Programmatic access only.** Public APIs, SPARQL, or published datasets. No scraping of rendered pages.
 - **Metadata first.** Titles, dates, media and credit lines are stored. Bare facts carry little or no copyright protection in Australia (*IceTV v Nine Network*, *Telstra v Desktop Marketing*); descriptions and credit lines can, so source and licence are recorded.
 - **Images only where openly licensed.** `scripts/export-static.ts` keeps an image link only when the source licence is CC0, public domain, no known copyright restrictions, CC BY, or a Wikimedia Commons file. Rights-reserved images, "see source" images, and bare institution names are dropped at export; the record then shows metadata only and links to the source. 15,517 image links were dropped on the first export (Tate 8,269, MoMA 6,000, Art Institute of Chicago 709, Harvard 495 and a few others).
+- **One exception to "links only".** The home page keeps 72 small thumbnails in `public/gallery`, chosen only from works the source marks public domain or CC0 and served from Wikimedia Commons, so the wall loads instantly and can show a new random set each visit. Each has its credit in `public/gallery/index.json`.
 - **First Nations material (ICIP).** See the section below.
+
+## Which galleries are published
+
+Only galleries with a real sample are listed. The export (`scripts/export-static.ts`) leaves out any gallery with fewer than 50 works and the whole of the Joconde source, which scatters a handful of records across many small French museums and has no images. A scattering is not useful to a reader and cannot be expanded sensibly. The French national feed (`pnpm ingest:joconde`) remains in the repository for anyone who wants it.
+
+Several large Australian galleries could not be added because there is nothing to ingest: the MCA Sydney, MONA, the Art Gallery of Western Australia (9 works on Wikidata), TMAG, Ballarat and Newcastle. See `docs/ADDING-GALLERIES.md`.
 
 ## Where records come from
 
@@ -20,7 +27,7 @@ Dartabase mirrors what institutions have chosen to publish, and nothing else. It
 | Nationalmuseum Norway | DigitaltMuseum | Per source | Per record: CC BY-NC (non-commercial, credit required) |
 | Europeana (sample) | REST API | CC0 | Per record: CC BY-SA or public domain |
 | National Taiwan Museum of Fine Arts, Kaohsiung Museum of Fine Arts | collections.culture.tw open data | CC BY 4.0 | None published |
-| French national collections (Joconde), Tokyo metropolitan museums (TOMuCo) | Open-data downloads | French Licence Ouverte / per source (not confirmed for TOMuCo) | None |
+| Tokyo metropolitan museums (TOMuCo) | Open-data download | Per source (not confirmed) | None |
 | QAGOMA (Queensland) | Queensland open-data CSV | Queensland Government open data (published as CC BY 4.0; confirm at the dataset page) | None published |
 | Wikidata collections: Uffizi, Capodimonte, Hermitage, Frick, Prado, National Gallery London, Fitzwilliam, Scottish National Gallery, Nationalmuseum Stockholm, National Palace Museum Taipei, Warsaw, Bavarian State Painting Collections, and about 30 more | Wikidata SPARQL (`P195` collection) | CC0 (Wikidata) | Wikimedia Commons file, linked directly; the per-file licence applies and is one click away |
 | NGV, Art Gallery of NSW, National Gallery of Australia, Art Gallery of South Australia, Art Gallery of Western Australia | Wikidata SPARQL, `--metadata-only` | CC0 (Wikidata) | None ever stored |

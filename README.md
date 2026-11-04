@@ -2,7 +2,7 @@
 
 Reference data for artworks is scattered across museum sites, each with its own
 schema, its own API and its own idea of what a date or a medium is. Dartabase
-normalises about 132,000 artwork records from open museum collections into one
+normalises about 128,000 artwork records from open museum collections into one
 schema, makes them searchable in the browser, and formats a citation for any
 record in Chicago, MLA, APA or Harvard, with BibTeX and RIS. Every field is
 attributable to a named source.
@@ -42,8 +42,8 @@ removed, use the link on the record or open an issue.
 **Galleries and sources** (footer link) lists every collection covered, with a
 link to each institution.
 
-Coverage is a sample, not everything a museum holds: 126 collections, 131,891
-artworks, 21,073 artists. If a work is missing it may exist at the source but not
+Coverage is a sample, not everything a museum holds: 71 collections, 128,331
+artworks, 20,180 artists. If a work is missing it may exist at the source but not
 here. The Australian galleries (QAGOMA, NGV, AGNSW, NGA, AGSA, AGWA) are metadata
 only and link back to the gallery. Corrections: use "Suggest a correction" on any
 record.
@@ -57,7 +57,8 @@ museum APIs, CSV dumps, Wikidata
 local Postgres (Supabase in Docker)  ──  pnpm dedup, pnpm flag:icip
         │  pnpm export
         ▼
-public/data/   ~21,000 small JSON files, ~235 MB
+public/data/   ~20,000 small JSON files, ~175 MB
+public/gallery/  72 public-domain thumbnails for the home page (pnpm gallery:fetch)
         │  pnpm build        (Next.js static export)
         ▼
 out/  ──►  GitHub Pages
@@ -69,7 +70,8 @@ deduplicate. The published site only reads files: a record is one fetch of a
 small index file named by the first letters of the word you typed. Nothing runs
 on a server, so nothing can be exhausted, billed or suspended.
 
-Images are never stored. A record holds a link and the visitor's browser loads
+Images are not stored, apart from 72 public-domain thumbnails that make the home page
+wall instant. A record holds a link and the visitor's browser loads
 the image from the museum or Wikimedia Commons. An image link is exported only
 where the source licence is open (CC0, public domain, CC BY, Commons).
 `DATA-SOURCES.md` lists every source, its terms, and how First Nations material
@@ -130,6 +132,7 @@ pipeline; each takes `--dry-run` and a required `--limit`.
 ```bash
 pnpm db:start                                   # local Postgres in Docker
 pnpm db:env                                     # writes .env.local for it
+pnpm db:restore                                 # loads the published data snapshot
 pnpm ingest:tate -- --limit 500                 # or any ingest:* script
 pnpm ingest:ngv -- --limit 7000
 pnpm dedup                                      # fold cross-source duplicates
