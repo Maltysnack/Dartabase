@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 
-// Runs an async load whenever `key` changes. Returns undefined while the
-// value for the current key is still loading.
-export function useLoaded<T>(key: string, load: () => Promise<T>): T | undefined {
+// Runs an async load whenever `key` changes. Returns `initial` (or undefined)
+// while the value for the current key is still loading.
+export function useLoaded<T>(key: string, load: () => Promise<T>, initial?: T): T | undefined {
   const [state, setState] = useState<{ key: string; value: T } | null>(null);
   useEffect(() => {
     let live = true;
@@ -15,5 +15,5 @@ export function useLoaded<T>(key: string, load: () => Promise<T>): T | undefined
     // `load` is a closure over `key`; re-running on key alone is intended.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key]);
-  return state?.key === key ? state.value : undefined;
+  return state?.key === key ? state.value : initial;
 }

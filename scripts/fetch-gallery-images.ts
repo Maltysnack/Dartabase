@@ -19,7 +19,24 @@ const USER_AGENT =
 
 interface Candidate {
   id: string; title: string; artist: string; date: string | null;
-  institution: string; image: string; licence: string | null;
+  institution: string; image: string; licence: string | null; work: unknown;
+}
+
+// Width and height from a JPEG or PNG header, so the home page can lay tiles out
+// by proportion before any image has loaded.
+function dimensions(b: Buffer): { w: number; h: number } | null {
+  if (b[0] === 0x89 && b[1] === 0x50) return { w: b.readUInt32BE(16), h: b.readUInt32BE(20) };
+  if (b[0] !== 0xff || b[1] !== 0xd8) return null;
+  let i = 2;
+  while (i + 9 < b.length) {
+    if (b[i] !== 0xff) { i++; continue; }
+    const marker = b[i + 1];
+    if (marker >= 0xc0 && marker <= 0xcf && ![0xc4, 0xc8, 0xcc].includes(marker)) {
+      return { h: b.readUInt16BE(i + 5), w: b.readUInt16BE(i + 7) };
+    }
+    i += 2 + b.readUInt16BE(i + 2);
+  }
+  return null;
 }
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -59,10 +76,12 @@ async function main() {
     const got = await download(c.image);
     await sleep(500);
     if (!got) continue;
+    const size = dimensions(got.bytes);
+    if (!size) continue;
     const file = `${String(index.length + 1).padStart(2, "0")}.${got.ext}`;
     writeFileSync(join(OUT, file), got.bytes);
     perGallery.set(c.institution, (perGallery.get(c.institution) ?? 0) + 1);
-    index.push({ file, id: c.id, title: c.title, artist: c.artist, date: c.date, institution: c.institution, licence: c.licence });
+    index.push({ file, id: c.id, title: c.title, artist: c.artist, date: c.date, institution: c.institution, licence: c.licence, w: size.w, h: size.h, work: c.work });
     console.log(`${index.length}/${TARGET} ${c.institution}: ${c.title}`);
   }
   writeFileSync(join(OUT, "index.json"), JSON.stringify(index));

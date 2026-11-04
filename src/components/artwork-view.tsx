@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { artistHref, artworkHref, BASE, getWork, lifeSpan } from "@/lib/data";
+import { artistHref, artworkHref, BASE, getWork, lifeSpan, peekThumb, peekWork } from "@/lib/data";
 import { useLoaded } from "@/lib/use-loaded";
 import { artworkRights } from "@/lib/format";
 import { correctionIssueUrl, takedownIssueUrl } from "@/lib/correction";
@@ -14,7 +14,7 @@ const label = "font-mono text-[10px] uppercase tracking-[0.12em] text-muted";
 
 export function ArtworkView() {
   const id = useSearchParams().get("id") ?? "";
-  const work = useLoaded(id, () => getWork(id));
+  const work = useLoaded(id, () => getWork(id), peekWork(id));
 
   if (work === undefined) {
     return <p className="mx-auto max-w-[1500px] px-6 py-12 font-display italic text-muted md:px-10">Loading…</p>;
@@ -56,8 +56,8 @@ export function ArtworkView() {
 
       <div className="grid gap-12 lg:grid-cols-[1.45fr_1fr]">
         <div className="relative h-[60vh] min-h-[360px] self-start border border-line bg-raised lg:sticky lg:top-6 lg:h-[78vh]">
-          <WorkImage src={work.image} alt={work.title} />
-          {!work.image && (
+          <WorkImage src={work.image} alt={work.title} placeholder={peekThumb(work.id)} />
+          {!work.image && !peekThumb(work.id) && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 px-8 text-center">
               <p className={label}>Metadata only</p>
               <p className="max-w-sm font-display text-sm italic leading-relaxed text-muted">

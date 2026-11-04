@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { artworkHref, getArtist, lifeSpan } from "@/lib/data";
+import { artworkHref, getArtist, lifeSpan, prefetchWork } from "@/lib/data";
 import { useLoaded } from "@/lib/use-loaded";
 
 const label = "font-mono text-[10px] uppercase tracking-[0.12em] text-muted";
@@ -70,6 +70,7 @@ export function ArtistView() {
           <li key={w[0]}>
             <Link
               href={artworkHref(w[0])}
+              onPointerEnter={() => prefetchWork(w[0])}
               className="flex flex-col gap-1 py-2.5 md:flex-row md:items-baseline md:justify-between md:gap-6"
             >
               <span className="font-display italic text-ink hover:underline">{w[1]}</span>

@@ -95,6 +95,9 @@ export async function getArtist(id: string): Promise<ArtistRecord | null> {
   return shard?.[id] ?? null;
 }
 
+export const getGalleries = () => getJson<GalleryRow[]>("institutions.json");
+export const getStats = () => getJson<Stats>("stats.json");
+
 export interface GalleryTile {
   file: string;
   id: string;
@@ -102,21 +105,34 @@ export interface GalleryTile {
   artist: string;
   date: string | null;
   institution: string;
+  w: number;
+  h: number;
+  work: Work;
 }
+
+// Works already in the browser (the home page pool), so opening one needs no
+// fetch, and the local thumbnail can stand in while the full image loads.
+const known = new Map<string, { work: Work; thumb: string }>();
+export const peekWork = (id: string): Work | undefined => known.get(id)?.work;
+export const peekThumb = (id: string): string | undefined => known.get(id)?.thumb;
 
 // A random selection from the public-domain images stored in /gallery, so the
 // home page shows a fresh set on every visit with no hotlink delay.
 export async function getGalleryTiles(count: number): Promise<GalleryTile[]> {
   const res = await fetch(`${BASE}/gallery/index.json`).catch(() => null);
   const pool: GalleryTile[] = res?.ok ? await res.json() : [];
+  for (const t of pool) known.set(t.id, { work: t.work, thumb: `${BASE}/gallery/${t.file}` });
   for (let i = pool.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [pool[i], pool[j]] = [pool[j], pool[i]];
   }
   return pool.slice(0, count);
 }
-export const getGalleries = () => getJson<GalleryRow[]>("institutions.json");
-export const getStats = () => getJson<Stats>("stats.json");
+
+// Warm the cache for a record the visitor is about to open.
+export function prefetchWork(id: string): void {
+  if (!known.has(id)) void getWork(id);
+}
 
 export interface SearchResults {
   artists: SearchArtist[];

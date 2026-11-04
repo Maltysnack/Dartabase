@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { artistHref, artworkHref, lifeSpan, search } from "@/lib/data";
+import { artistHref, artworkHref, lifeSpan, prefetchWork, search } from "@/lib/data";
 import { useLoaded } from "@/lib/use-loaded";
 
 // Type-ahead over the static search files. Enter opens the full results page.
@@ -96,6 +96,7 @@ export function SearchBox({
             <li key={w[0]}>
               <Link
                 href={artworkHref(w[0])}
+                onPointerEnter={() => prefetchWork(w[0])}
                 onClick={() => setOpen(false)}
                 className="flex items-baseline justify-between gap-4 px-4 py-2 hover:bg-paper"
               >

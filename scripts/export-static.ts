@@ -128,7 +128,7 @@ async function main() {
   const searchWorks = new Map<string, Map<string, { e: SearchArtwork; rank: number }[]>>();
   const worksByArtist = new Map<string, unknown[][]>();
   const instCounts = new Map<string, { n: number; images: number }>();
-  const galleryPool: { id: string; title: string; artist: string; date: string | null; institution: string; image: string; licence: string | null; h: number }[] = [];
+  const galleryPool: { id: string; title: string; artist: string; date: string | null; institution: string; image: string; licence: string | null; h: number; work: unknown }[] = [];
 
   for (const w of artworks) {
     const inst = resolve(instById, w.current_institution_id);
@@ -177,7 +177,7 @@ async function main() {
     if (image && !w.cultural_notice && inst && artist && /public domain|cc0/i.test(w.image_license ?? "") && /commons\.wikimedia\.org/.test(image)) {
       let g = 0;
       for (const ch of w.id) g = (g * 31 + ch.charCodeAt(0)) >>> 0;
-      galleryPool.push({ id: w.id, title: w.title, artist: artist.name, date, institution: inst.name, image, licence: w.image_license, h: g });
+      galleryPool.push({ id: w.id, title: w.title, artist: artist.name, date, institution: inst.name, image, licence: w.image_license, h: g, work: rec });
     }
   }
   console.log(`dropped ${droppedImages} images without an open licence`);

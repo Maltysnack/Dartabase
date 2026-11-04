@@ -3,7 +3,7 @@
 import { useLoaded } from "@/lib/use-loaded";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { artistHref, artworkHref, lifeSpan, search } from "@/lib/data";
+import { artistHref, artworkHref, lifeSpan, prefetchWork, search } from "@/lib/data";
 
 const label = "font-mono text-[10px] uppercase tracking-[0.12em] text-muted";
 
@@ -56,6 +56,7 @@ export function SearchView() {
               <li key={w[0]}>
                 <Link
                   href={artworkHref(w[0])}
+                  onPointerEnter={() => prefetchWork(w[0])}
                   className="flex flex-col gap-1 py-3 md:flex-row md:items-baseline md:justify-between md:gap-6"
                 >
                   <span className="font-display italic text-ink hover:underline">{w[1]}</span>
