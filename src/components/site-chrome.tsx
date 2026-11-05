@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { Wordmark } from "./wordmark";
-import { SearchBox } from "./search-box";
 import { REPO } from "@/lib/data";
 
 export function SiteHeader() {
@@ -10,9 +9,6 @@ export function SiteHeader() {
         <Link href="/" aria-label="Dartabase home" className="shrink-0">
           <Wordmark />
         </Link>
-        <div className="ml-auto w-full max-w-md">
-          <SearchBox size="compact" />
-        </div>
       </div>
     </header>
   );

@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { artworkHref, getArtist, lifeSpan, prefetchWork } from "@/lib/data";
+import { artworkHref, getArtist, type ArtistRecord, lifeSpan, prefetchWork } from "@/lib/data";
 import { useLoaded } from "@/lib/use-loaded";
 
 const label = "font-mono text-[10px] uppercase tracking-[0.12em] text-muted";
@@ -19,6 +19,9 @@ export function ArtistView() {
     }
     return [...counts.entries()].sort((a, b) => b[1] - a[1]);
   }, [artist]);
+
+  const withImage = artist?.works.filter((w) => w[5]) ?? [];
+  const noImage = artist?.works.filter((w) => !w[5]) ?? [];
 
   if (artist === undefined) {
     return <p className="mx-auto max-w-4xl px-6 py-12 font-display italic text-muted md:px-10">Loading…</p>;
@@ -64,9 +67,21 @@ export function ArtistView() {
         </div>
       </div>
 
-      <h2 className={`${label} mt-14`}>Known works</h2>
+      <WorkList title="Works with an image" works={withImage} />
+      <WorkList title="Metadata only, no image available" works={noImage} />
+    </div>
+  );
+}
+
+function WorkList({ title, works }: { title: string; works: ArtistRecord["works"] }) {
+  if (works.length === 0) return null;
+  return (
+    <>
+      <h2 className={`${label} mt-14`}>
+        {title} <span className="text-muted/70">{works.length}</span>
+      </h2>
       <ul className="mt-4 divide-y divide-line border-y border-line">
-        {artist.works.map((w) => (
+        {works.map((w) => (
           <li key={w[0]}>
             <Link
               href={artworkHref(w[0])}
@@ -79,6 +94,6 @@ export function ArtistView() {
           </li>
         ))}
       </ul>
-    </div>
+    </>
   );
 }
